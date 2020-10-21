@@ -1,3 +1,4 @@
+#include "ns3/netanim-module.h"
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
 #include "ns3/csma-module.h"
@@ -8,7 +9,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("Second_example"); //Nome do log de saída
+NS_LOG_COMPONENT_DEFINE ("simulacao"); //Nome do log de saída
 
 int main(int argc, char *argv[]){
   bool verbose = true;
@@ -89,7 +90,17 @@ int main(int argc, char *argv[]){
   pointToPoint.EnablePcapAll("second");
   csma.EnablePcap("second", csmaDevices.Get(1), true);
   
+  //Gera xml para usar no NetAnim
+  AnimationInterface anim ("simulacao.xml");
+
+  //define posições dos nodes
+  anim.SetConstantPosition (p2pNodes.Get(0), 10.0, 10.0);
+  anim.SetConstantPosition (csmaNodes.Get(0), 20.0, 20.0);
+  anim.SetConstantPosition (csmaNodes.Get(1), 20.0, 30.0);
+  anim.SetConstantPosition (csmaNodes.Get(2), 30.0, 20.0);
+  anim.SetConstantPosition (csmaNodes.Get(3), 30.0, 30.0);
+
   Simulator::Run();
   Simulator::Destroy();
   return 0;
-}
+ }
