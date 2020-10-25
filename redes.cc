@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
   //Configuração do canal único de comunicação da rede Broadcast
   CsmaHelper csma;
   csma.SetChannelAttribute("DataRate", StringValue("100Mbps"));
-  csma.SetChannelAttribute("Delay", TimeValue(NanoSeconds(6560)));//MilliSeconds(2)
+  csma.SetChannelAttribute("Delay", TimeValue(MilliSeconds(2)));//NanoSeconds(6560)
   
   NetDeviceContainer csmaDevices;
   csmaDevices = csma.Install(csmaNodes);
@@ -80,7 +80,6 @@ int main(int argc, char *argv[]){
   //Estabelecendo o endereçamento IPv4 para a rede P2P
   Ipv4AddressHelper address;
   address.SetBase("10.1.1.0", "255.255.255.0"); //10.1. é o IP base dos nós da rede P2P
-  Ipv4InterfaceContainer p2pInterfaces;
   address.Assign (p2pDevice01);
   address.SetBase("10.1.2.0", "255.255.255.0");
   address.Assign (p2pDevice02);
@@ -140,6 +139,7 @@ int main(int argc, char *argv[]){
   for(int i = 0; i <= numCsma; i++){
     anim.SetConstantPosition(csmaNodes.Get(i), posX, posY);
     posX += 20.0;
+    if(i==0) posY = 30.0;
   }
  
   Simulator::Run();
