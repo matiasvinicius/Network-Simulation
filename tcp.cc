@@ -9,20 +9,12 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("simulacao"); //Nome do log de saída
 
 int main(int argc, char *argv[]){
-  
-  LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
-  LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
-
-
-  LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
-  LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
-
 
   //Nós = Hosts
   //Criando os nós
+
   int numP2P = 7;
   NodeContainer p2pNodeGeral;
   p2pNodeGeral.Create(numP2P); //7 nós na rede P2P, 10 enlaces
@@ -93,15 +85,11 @@ int main(int argc, char *argv[]){
   destinatario = address.Assign(p2pDevice56);
  
   //SIMULAÇÃO 1 - UDP
-  //Definimos o nó destinatário
-  //Definimos o nó destinatário
-  //Definimos o nó destinatário
-  //Definimos o nó destinatário
-  //Definimos o nó destinatário
+  
   //Definimos o nó destinatário
   BulkSendHelper source ("ns3::TcpSocketFactory",InetSocketAddress (destinatario.GetAddress (1), 9));
   
-  // Set the amount of data to send in bytes. Zero is unlimited.
+  //Definimos a quantidade de dados em bytes a serem enviados
   source.SetAttribute ("MaxBytes", UintegerValue (1024));//bytes
   
   //Definimos o nó remetente
@@ -109,19 +97,12 @@ int main(int argc, char *argv[]){
   sourceApps.Start (Seconds (0.0));
   sourceApps.Stop (Seconds (10.0));
 
-//
-// Create a PacketSinkApplication and install it on server (n6)
-//
+
+  //Cria um PacketSinkApplication e o instala no destinatário (n6)
   PacketSinkHelper sink ("ns3::TcpSocketFactory",InetSocketAddress (Ipv4Address::GetAny (), 9));
   ApplicationContainer sinkApps = sink.Install (p2pNodeGeral.Get (6));
   sinkApps.Start (Seconds (0.0));
   sinkApps.Stop (Seconds (10.0));
-
-  //gera logs .PCAP
-  AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("tcp1.tr"));
-  pointToPoint.EnablePcapAll ("tcp1", true);
-
 
   
   //Tabela de Roteamento
@@ -129,7 +110,9 @@ int main(int argc, char *argv[]){
   
   //Habilita logs e  gera .PCAPS
   pointToPoint.EnablePcapAll("node");
-
+  AsciiTraceHelper ascii;
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("tcp1.tr"));
+  pointToPoint.EnablePcapAll ("tcp1", true);
 
   //Gera xml para usar no NetAnim
   AnimationInterface anim ("tcp.xml");
@@ -142,8 +125,6 @@ int main(int argc, char *argv[]){
   anim.SetConstantPosition (p2pNodeGeral.Get(4), 35.0*2, 10.0*2);
   anim.SetConstantPosition (p2pNodeGeral.Get(5), 25.0*2, 20.0*2);
   anim.SetConstantPosition (p2pNodeGeral.Get(6), 35.0*2, 20.0*2);
-
-
   
   Simulator::Run();
   Simulator::Destroy();

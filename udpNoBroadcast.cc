@@ -1,7 +1,6 @@
 #include "ns3/netanim-module.h"
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
-#include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
@@ -9,15 +8,10 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("simulacao"); //Nome do log de saída
-
 int main(int argc, char *argv[]){
-  int numCsma = 3;
   
   LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
   LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
-
-  numCsma = numCsma == 0 ? 1 : numCsma;
   
   //Nós = Hosts
   //Criando os nós
@@ -25,12 +19,11 @@ int main(int argc, char *argv[]){
   NodeContainer p2pNodeGeral;
   p2pNodeGeral.Create(numP2P); //4 nós na rede P2P, 4 enlaces
 
-  //Criando enlace dos nós da rede P2P
+  //Criando os enlaces dos nós da rede P2P
   NodeContainer p2pNode01 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(1));
   NodeContainer p2pNode02 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(2));
   NodeContainer p2pNode03 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(3));
   NodeContainer p2pNode12 = NodeContainer(p2pNodeGeral.Get(1), p2pNodeGeral.Get(2));
-
   NodeContainer p2pNode34 = NodeContainer(p2pNodeGeral.Get(3), p2pNodeGeral.Get(4));
   NodeContainer p2pNode35 = NodeContainer(p2pNodeGeral.Get(3), p2pNodeGeral.Get(5));
   NodeContainer p2pNode36 = NodeContainer(p2pNodeGeral.Get(3), p2pNodeGeral.Get(6));
@@ -66,10 +59,9 @@ int main(int argc, char *argv[]){
 
   //Acima foi criada toda a topologia da rede até a instalação da pilha de internet
   //Abaixo vem as coisas mais específicas de cada protocolo (TCP, UDP e IP)
-  NS_LOG_INFO ("Assign IP Addresses.");
+
   //Estabelecendo o endereçamento IPv4 para a rede P2P
   Ipv4AddressHelper address;
-  Ipv4InterfaceContainer destinatario;
   address.SetBase("10.1.1.0", "255.255.255.0"); //10.1. é o IP base dos nós da rede P2P
   address.Assign (p2pDevice01);
   address.SetBase("10.1.2.0", "255.255.255.0");
@@ -89,7 +81,7 @@ int main(int argc, char *argv[]){
   address.SetBase("10.1.9.0", "255.255.255.0");
   address.Assign (p2pDevice46);
   address.SetBase("10.1.10.0", "255.255.255.0");
-  destinatario = address.Assign(p2pDevice56);
+  Ipv4InterfaceContainer destinatario = address.Assign(p2pDevice56);
 
   //SIMULAÇÃO 1 - UDP
   
@@ -97,20 +89,19 @@ int main(int argc, char *argv[]){
   //Estabelece as aplicações cliente / Servidor
   UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
 
-  ApplicationContainer serverApps = echoServer.Install(p2pNodeGeral.Get(numP2P-1)); //último nó da rede é o servidor
+  ApplicationContainer serverApps = echoServer.Install(p2pNodeGeral.Get(numP2P-1)); //último nó da rede é o destinatário (servidor)
   serverApps.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
   serverApps.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
 
 
-  //Cria uma aplicação UDP que assinalamos o IP e porta do servidor que enviaremos os pacotes
-  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);//csmaInterfaces.GetAddress(numCsma)
+  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes
+  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
   echoClient.SetAttribute("MaxPackets", UintegerValue(1));
   echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
   echoClient.SetAttribute("PacketSize", UintegerValue(1024));
   
-  //Instala a aplicação no nó 0 da rede P2P (primeiro "cliente")
+  //Instala a aplicação no nó 1 da rede P2P (primeiro "cliente")
   ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(1)); //o primeiro nó da rede P2P é o "cliente"
-
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(10.0));
 
@@ -121,7 +112,7 @@ int main(int argc, char *argv[]){
   pointToPoint.EnablePcapAll("node");
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("udp_sem_broadcast.xml");
+  AnimationInterface anim ("udpNoBroadcast.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0, 10.0);

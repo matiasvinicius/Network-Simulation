@@ -9,12 +9,13 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("simulacao"); //Nome do log de saída
+
 
 int main(int argc, char *argv[]){
+  
+  //Número de nós na rede Broadcast (não incluindo um nó misto da rede P2P)
   int numCsma = 3;
 
-  
   LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
   LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
 
@@ -33,10 +34,10 @@ int main(int argc, char *argv[]){
   NodeContainer p2pNode12 = NodeContainer(p2pNodeGeral.Get(1), p2pNodeGeral.Get(2));
 
 
-  //Criando enlace da rede Broadcast
+  //Criando enlace da rede Broadcast (incluindo um nó misto da rede P2P)
   NodeContainer csmaNodes;
   csmaNodes.Add(p2pNodeGeral.Get(numP2P-1)); //Nossa rede broadcast terá o último nó da rede P2P
-  csmaNodes.Create(numCsma); //Nossa rede broadcast terá nCsma nós
+  csmaNodes.Create(numCsma); //Nossa rede broadcast terá numCsma nós
   
   //Configuração da rede P2P
   //Point to Point é praticamente um link dedicado (dedica um canal de 5Mbps com delay de 2ms)
@@ -68,7 +69,7 @@ int main(int argc, char *argv[]){
   
   //Acima foi criada toda a topologia da rede até a instalação da pilha de internet
   //Abaixo vem as coisas mais específicas de cada protocolo (TCP, UDP e IP)
-  NS_LOG_INFO ("Assign IP Addresses.");
+
   //Estabelecendo o endereçamento IPv4 para a rede P2P
   Ipv4AddressHelper address;
   address.SetBase("10.1.1.0", "255.255.255.0"); //10.1. é o IP base dos nós da rede P2P
@@ -82,8 +83,7 @@ int main(int argc, char *argv[]){
   
   //Estabelecendo o endereçamento IPv4 para a rede Broadcast
   address.SetBase("10.200.1.0", "255.255.255.0"); //10.200.1.0 é o IP base dos nós da rede broadcast
-  Ipv4InterfaceContainer csmaInterfaces;
-  csmaInterfaces = address.Assign(csmaDevices);
+  Ipv4InterfaceContainer csmaInterfaces = address.Assign(csmaDevices);
   
   //SIMULAÇÃO 1 - UDP
 
@@ -95,15 +95,14 @@ int main(int argc, char *argv[]){
   serverApps.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
   serverApps.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
   
-  //Cria uma aplicação UDP que assinalamos o IP e porta do servidor que enviaremos os pacotes
+  //Cria uma aplicação UDP que assinalamos o IP e porta do destinatario que enviaremos os pacotes
   UdpEchoClientHelper echoClient (csmaInterfaces.GetAddress(numCsma), 9);
   echoClient.SetAttribute("MaxPackets", UintegerValue(1));
   echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
   echoClient.SetAttribute("PacketSize", UintegerValue(1024));
   
   //Instala a aplicação no nó 0 da rede P2P (primeiro "cliente")
-  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(0)); //o primeiro nó da rede P2P é o "cliente"
-
+  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(0)); //o primeiro nó da rede P2P é o remetente
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(10.0));
   
@@ -111,11 +110,11 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
   
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("node");
-  csma.EnablePcap("node", csmaDevices.Get(1), true);
+  pointToPoint.EnablePcapAll("nodeP2P");
+  csma.EnablePcap("nodeCsma", csmaDevices.Get(1), true);
   
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("simulacao.xml");
+  AnimationInterface anim ("udpWithBroadcast.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0, 10.0);
