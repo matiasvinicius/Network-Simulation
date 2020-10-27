@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
   //Criando os nós
   int numP2P = 7;
   NodeContainer p2pNodeGeral;
-  p2pNodeGeral.Create(numP2P); //4 nós na rede P2P, 4 enlaces
+  p2pNodeGeral.Create(numP2P); //7 nós na rede P2P, 10 enlaces
 
   //Criando os enlaces dos nós da rede P2P
   NodeContainer p2pNode01 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(1));
@@ -37,8 +37,8 @@ int main(int argc, char *argv[]){
   //Configuração da rede P2P
   //Point to Point é praticamente um link dedicado (dedica um canal de 5Mbps com delay de 2ms)
   PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("256Kbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("100ms"));
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("512Kbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
   
   //Interfaces de Rede
   NetDeviceContainer p2pDevice01 = pointToPoint.Install(p2pNode01);
@@ -96,25 +96,35 @@ int main(int argc, char *argv[]){
   serverApps.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
 
 
-  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes
+  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes (n6)
   UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
   echoClient.SetAttribute("MaxPackets", UintegerValue(1));
-  echoClient.SetAttribute("Interval", TimeValue(Seconds(0.0)));
-  echoClient.SetAttribute("PacketSize", UintegerValue(20480));
+  echoClient.SetAttribute("Interval", TimeValue(Seconds(0)));
+  echoClient.SetAttribute("PacketSize", UintegerValue(1024));
   
+  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes (n3)
+  UdpEchoClientHelper echoClient2 (destinatario.GetAddress(1), 9);
+  echoClient2.SetAttribute("MaxPackets", UintegerValue(1));
+  echoClient2.SetAttribute("Interval", TimeValue(Seconds(0)));
+  echoClient2.SetAttribute("PacketSize", UintegerValue(20480));
+
   //Instala a aplicação no nó 1 da rede P2P (primeiro "cliente")
-  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(1)); //o primeiro nó da rede P2P é o "cliente"
+  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(1)); //o 1º nó da rede P2P é "cliente"
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(10.0));
+
+  ApplicationContainer clientApps2 = echoClient2.Install (p2pNodeGeral.Get(2)); //o 2º nó da rede P2P também é "cliente"
+  clientApps2.Start(Seconds(1.0));
+  clientApps2.Stop(Seconds(10.0));
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("sim2_udp");
+  pointToPoint.EnablePcapAll("sim3_udp");
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim2_udpNoBroadcast.xml");
+  AnimationInterface anim ("sim3_udpNoBroadcast.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0, 10.0);

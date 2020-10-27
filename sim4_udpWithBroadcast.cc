@@ -14,15 +14,14 @@ NS_LOG_COMPONENT_DEFINE ("simulacao");
 int main(int argc, char *argv[]){
   
   //Número de nós na rede Broadcast (não incluindo um nó misto da rede P2P)
-  int numCsma = 3;
+ 
 
   LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
   LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
-
-  numCsma = numCsma == 0 ? 1 : numCsma;
   
   //Nós = Hosts
   //Criando os nós
+  int numCsma = 3;
   int numP2P = 4;
   NodeContainer p2pNodeGeral;
   p2pNodeGeral.Create(numP2P); //4 nós na rede P2P, 4 enlaces
@@ -54,8 +53,8 @@ int main(int argc, char *argv[]){
   //Configuração da rede CSMA (broadcast)
   //Configuração do canal único de comunicação da rede Broadcast
   CsmaHelper csma;
-  csma.SetChannelAttribute("DataRate", StringValue("100Mbps"));
-  csma.SetChannelAttribute("Delay", TimeValue(MilliSeconds(2)));//NanoSeconds(6560)
+  csma.SetChannelAttribute("DataRate", StringValue("5Mbps"));
+  csma.SetChannelAttribute("Delay", TimeValue(MilliSeconds(2)));
   
   NetDeviceContainer csmaDevices;
   csmaDevices = csma.Install(csmaNodes);
@@ -102,7 +101,7 @@ int main(int argc, char *argv[]){
   echoClient.SetAttribute("PacketSize", UintegerValue(1024));
   
   //Instala a aplicação no nó 0 da rede P2P (primeiro "cliente")
-  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(0)); //o primeiro nó da rede P2P é o remetente
+  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(1)); //o nó 1 da rede P2P é o remetente
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(10.0));
   
@@ -110,8 +109,8 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
   
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("nodeP2P");
-  csma.EnablePcap("nodeCsma", csmaDevices.Get(1), true);
+  pointToPoint.EnablePcapAll("sim4_udp_P2P");
+  csma.EnablePcap("sim4_udp_Csma", csmaDevices.Get(1), true);
   
   //Gera xml para usar no NetAnim
   AnimationInterface anim ("sim4_udpWithBroadcast.xml");

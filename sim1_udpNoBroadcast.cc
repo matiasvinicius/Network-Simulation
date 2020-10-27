@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
   //Criando os nós
   int numP2P = 7;
   NodeContainer p2pNodeGeral;
-  p2pNodeGeral.Create(numP2P); //4 nós na rede P2P, 4 enlaces
+  p2pNodeGeral.Create(numP2P); //7 nós na rede P2P, 10 enlaces
 
   //Criando os enlaces dos nós da rede P2P
   NodeContainer p2pNode01 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(1));
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("node_udp");
+  pointToPoint.EnablePcapAll("sim1_udp");
 
   //Gera xml para usar no NetAnim
   AnimationInterface anim ("sim1_udpNoBroadcast.xml");

@@ -109,10 +109,9 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
   
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("node_tcp");
+  pointToPoint.EnablePcapAll("sim1_tcp");
   AsciiTraceHelper ascii;
   pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("sim1_tcp.tr"));
-  pointToPoint.EnablePcapAll ("sim1_tcp", true);
 
   //Gera xml para usar no NetAnim
   AnimationInterface anim ("sim1_tcp.xml");

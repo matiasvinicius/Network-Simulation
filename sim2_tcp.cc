@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
   //Configuração da rede P2P
   //Point to Point é praticamente um link dedicado (dedica um canal de 5Mbps com delay de 2ms)
   PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("256Mbps"));
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("256Kbps"));
   pointToPoint.SetChannelAttribute("Delay", StringValue("100ms"));
 
 
@@ -90,9 +90,9 @@ int main(int argc, char *argv[]){
   BulkSendHelper source ("ns3::TcpSocketFactory",InetSocketAddress (destinatario.GetAddress (1), 9));
   
   //Definimos a quantidade de dados em bytes a serem enviados
-  source.SetAttribute ("MaxBytes", UintegerValue (1024));//bytes
+  source.SetAttribute ("MaxBytes", UintegerValue (20480));//bytes
   
-  //Definimos o nó remetente
+  //Definimos o nó remetente (n1)
   ApplicationContainer sourceApps = source.Install (p2pNodeGeral.Get (1));
   sourceApps.Start (Seconds (1.0));
   sourceApps.Stop (Seconds (10.0));
@@ -109,10 +109,9 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
   
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("node_tcp");
+  pointToPoint.EnablePcapAll("sim2_tcp");
   AsciiTraceHelper ascii;
   pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("sim2_tcp.tr"));
-  pointToPoint.EnablePcapAll ("sim2_tcp", true);
 
   //Gera xml para usar no NetAnim
   AnimationInterface anim ("sim2_tcp.xml");
