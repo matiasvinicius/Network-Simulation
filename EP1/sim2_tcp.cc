@@ -36,8 +36,8 @@ int main(int argc, char *argv[]){
   //Configuração da rede P2P
   //Point to Point é praticamente um link dedicado (dedica um canal de 5Mbps com delay de 2ms)
   PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("256Kbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("100ms"));
 
 
   //Interfaces de Rede
@@ -84,47 +84,37 @@ int main(int argc, char *argv[]){
   address.SetBase("10.1.10.0", "255.255.255.0");
   address.Assign(p2pDevice56);
  
-  //SIMULAÇÃO 1 - TCP
+  //SIMULAÇÃO 2 -TCP
   
   //Definimos o nó destinatário
   BulkSendHelper source ("ns3::TcpSocketFactory",InetSocketAddress (destinatario.GetAddress (1), 9));
   
   //Definimos a quantidade de dados em bytes a serem enviados
-  source.SetAttribute ("MaxBytes", UintegerValue (1024));//bytes
-
-  BulkSendHelper source2 ("ns3::TcpSocketFactory",InetSocketAddress (destinatario.GetAddress (1), 9));
-  //Definimos a quantidade de dados em bytes a serem enviados
-  source2.SetAttribute ("MaxBytes", UintegerValue (20480));//bytes
-
-
+  source.SetAttribute ("MaxBytes", UintegerValue (20480));//bytes
   
-  //Definimos o nó remetente
+  //Definimos o nó remetente (n1)
   ApplicationContainer sourceApps = source.Install (p2pNodeGeral.Get (1));
   sourceApps.Start (Seconds (1.0));
-  sourceApps.Stop (Seconds (20.0));
-
-  ApplicationContainer sourceApps2 = source2.Install (p2pNodeGeral.Get (2));
-  sourceApps2.Start (Seconds (1.0));
-  sourceApps2.Stop (Seconds (20.0));
+  sourceApps.Stop (Seconds (10.0));
 
 
   //Cria um PacketSinkApplication e o instala no destinatário (n6)
   PacketSinkHelper sink ("ns3::TcpSocketFactory",InetSocketAddress (Ipv4Address::GetAny (), 9));
   ApplicationContainer sinkApps = sink.Install (p2pNodeGeral.Get (6));
-  sinkApps.Start (Seconds (1.0));
-  sinkApps.Stop (Seconds (20.0));
+  sinkApps.Start (Seconds (0.0));
+  sinkApps.Stop (Seconds (10.0));
 
   
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
   
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("sim3_tcp");
+  pointToPoint.EnablePcapAll("sim2_tcp");
   AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("sim1_tcp.tr"));
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("sim2_tcp.tr"));
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim3_tcp.xml");
+  AnimationInterface anim ("sim2_tcp.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0*2, 10.0*2);

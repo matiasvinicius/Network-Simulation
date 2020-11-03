@@ -1,0 +1,7 @@
+Tema do EP2: 
+- Simulação e comparação dos protocolos RIP e OSPF em pelo menos 9 subredes P2P, sendo uma dessas com comunicação em broadcast. Assim como no EP1, utilizaremos o NS-3, mas dessa vez expandiremos a rede P2P criada anteriormente e utilizaremos apenas o protocolo UDP para transferência dos segmentos (já que nosso objetivo não é mais simular os protocolos TCP e UDP da camada de transporte)
+- Serão pelo menos 9 roteadores, indicando cada um a subrede P2P que gerencia.
+- À princípio, serão 3 AS’s: o primeiro com 3 roteadores, o segundo com 2, e o terceiro com 4.
+- Cada uma das subredes seguirá o algoritmo de estado de enlace (intra-AS), a comunicação inter-AS será via RIP e OSPF em pelo menos 4 cenários diferentes (um para comunicação intra-AS e três para comunicação inter-AS por roteamento hierárquico)
+- À princípio, o custo dos enlaces será baseado na taxa de transmissão + delay
+- Mesmo que sejam 9 subredes, faremos as subredes mais complexas somente as que realmente utilizamos nos testes (umas três ou quatro), as outras serão mais simples, apenas para realizar a conexão com um roteador (isto é, para fazer sentido a existência do roteador).

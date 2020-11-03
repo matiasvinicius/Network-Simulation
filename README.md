@@ -1,35 +1,11 @@
-# Network-Simulation
-A Network Simulation attempt
+#Simulação de Redes
 
-TO DO
+###### Esse repositório contém os dois EPs da disciplina de Redes de Computadores. Ambos são simulações de protocolos de determinada camada da interent para comparar seu desempenho em redes  Peer-to-Peer utilizando o simulador Open Source NS-3.
+###### Cada EP tem um relatório PDF com as explicações dos scripts, detalhes da implementação e resultados obtidos para diferentes cenários de teste.
 
-Rede P2P
-5 nós
-Delay -> 20ms
-Largura de Banda -> 1Mbps
-           P2P        Broadcast     
-    n0-------------n3--------n4
-  /P2P \ P2P        | \
- /      \          n5  ----n6
-n1-------n2
-    P2P
-P2P
-n0-n1
-n0-n2
-n1-n2
-n0-n3
+#### EP1 (Camada de Transporte)
+Comparação entre os protocolos UDP e TCP - Finalizado
 
-Broadcast
-n3-n4
-n3-n5
-n3-n6
+#### EP2 (Camada de Rede)
+Comparação entre os protocolos RIP e OSPF - Em andamento
 
-
-
-Simular
-Passar arquivos de tamanhos diferentes, alternar a largura de banda, alternar o primeiro nó que saem os arquivos, alternar o endereço (IPV6) dos Sockets, tempo para enviar os pacotes
-
-Output:
-Rota feita na rede na transferência, cabeçalho TCP e UDP (ACKs), tempo
-
-Comparar outputs de topologias TCP e UDP

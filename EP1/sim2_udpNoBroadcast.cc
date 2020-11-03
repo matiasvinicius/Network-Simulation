@@ -1,7 +1,6 @@
 #include "ns3/netanim-module.h"
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
-#include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
@@ -12,15 +11,17 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE ("simulacao");//permite a adoção de logs durante o código
 
 int main(int argc, char *argv[]){
-
+  
+  LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Cliente
+  LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO); // Log que diz o tempo que levou para chegar no Servidor
+  
   //Nós = Hosts
   //Criando os nós
-
   int numP2P = 7;
   NodeContainer p2pNodeGeral;
-  p2pNodeGeral.Create(numP2P); //7 nós na rede P2P, 10 enlaces
+  p2pNodeGeral.Create(numP2P); //4 nós na rede P2P, 4 enlaces
 
-  //Criando enlace dos nós da rede P2P
+  //Criando os enlaces dos nós da rede P2P
   NodeContainer p2pNode01 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(1));
   NodeContainer p2pNode02 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(2));
   NodeContainer p2pNode03 = NodeContainer(p2pNodeGeral.Get(0), p2pNodeGeral.Get(3));
@@ -38,8 +39,7 @@ int main(int argc, char *argv[]){
   PointToPointHelper pointToPoint;
   pointToPoint.SetDeviceAttribute("DataRate", StringValue("256Kbps"));
   pointToPoint.SetChannelAttribute("Delay", StringValue("100ms"));
-
-
+  
   //Interfaces de Rede
   NetDeviceContainer p2pDevice01 = pointToPoint.Install(p2pNode01);
   NetDeviceContainer p2pDevice02 = pointToPoint.Install(p2pNode02);
@@ -52,6 +52,7 @@ int main(int argc, char *argv[]){
   NetDeviceContainer p2pDevice46 = pointToPoint.Install(p2pNode46);
   NetDeviceContainer p2pDevice56 = pointToPoint.Install(p2pNode56);
 
+
   //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
   InternetStackHelper stack;
   for(int i = 0; i < numP2P; i++){
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]){
 
   //Acima foi criada toda a topologia da rede até a instalação da pilha de internet
   //Abaixo vem as coisas mais específicas de cada protocolo (TCP, UDP e IP)
-  NS_LOG_INFO ("Assign IP Addresses.");
+
   //Estabelecendo o endereçamento IPv4 para a rede P2P
   Ipv4AddressHelper address;
   address.SetBase("10.1.1.0", "255.255.255.0"); //10.1. é o IP base dos nós da rede P2P
@@ -83,47 +84,47 @@ int main(int argc, char *argv[]){
   address.Assign (p2pDevice46);
   address.SetBase("10.1.10.0", "255.255.255.0");
   address.Assign(p2pDevice56);
- 
-  //SIMULAÇÃO 1 -TCP
+
+  //SIMULAÇÃO 2 - UDP
   
-  //Definimos o nó destinatário
-  BulkSendHelper source ("ns3::TcpSocketFactory",InetSocketAddress (destinatario.GetAddress (1), 9));
-  
-  //Definimos a quantidade de dados em bytes a serem enviados
-  source.SetAttribute ("MaxBytes", UintegerValue (20480));//bytes
-  
-  //Definimos o nó remetente (n1)
-  ApplicationContainer sourceApps = source.Install (p2pNodeGeral.Get (1));
-  sourceApps.Start (Seconds (1.0));
-  sourceApps.Stop (Seconds (10.0));
+
+  //Estabelece as aplicações cliente / Servidor
+  UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
+
+  ApplicationContainer serverApps = echoServer.Install(p2pNodeGeral.Get(numP2P-1)); //último nó da rede é o destinatário (servidor)
+  serverApps.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
+  serverApps.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
 
 
-  //Cria um PacketSinkApplication e o instala no destinatário (n6)
-  PacketSinkHelper sink ("ns3::TcpSocketFactory",InetSocketAddress (Ipv4Address::GetAny (), 9));
-  ApplicationContainer sinkApps = sink.Install (p2pNodeGeral.Get (6));
-  sinkApps.Start (Seconds (0.0));
-  sinkApps.Stop (Seconds (10.0));
-
+  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes
+  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
+  echoClient.SetAttribute("MaxPackets", UintegerValue(1));
+  echoClient.SetAttribute("Interval", TimeValue(Seconds(0.0)));
+  echoClient.SetAttribute("PacketSize", UintegerValue(20480));
   
+  //Instala a aplicação no nó 1 da rede P2P (primeiro "cliente")
+  ApplicationContainer clientApps = echoClient.Install (p2pNodeGeral.Get(1)); //o primeiro nó da rede P2P é o "cliente"
+  clientApps.Start(Seconds(1.0));
+  clientApps.Stop(Seconds(10.0));
+
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
-  
+
   //Habilita logs e  gera .PCAPS
-  pointToPoint.EnablePcapAll("sim2_tcp");
-  AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("sim2_tcp.tr"));
+  pointToPoint.EnablePcapAll("sim2_udp");
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim2_tcp.xml");
+  AnimationInterface anim ("sim2_udpNoBroadcast.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
-  anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0*2, 10.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(1), 5.0*2, 20.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(2), 15.0*2, 20.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(3), 25.0*2, 10.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(4), 35.0*2, 10.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(5), 25.0*2, 20.0*2);
-  anim.SetConstantPosition (p2pNodeGeral.Get(6), 35.0*2, 20.0*2);
+  anim.SetConstantPosition (p2pNodeGeral.Get(0), 10.0, 10.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(1), 5.0, 20.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(2), 15.0, 20.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(3), 25.0, 10.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(4), 35.0, 10.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(5), 25.0, 20.0);
+  anim.SetConstantPosition (p2pNodeGeral.Get(6), 35.0, 20.0);
+
   
   Simulator::Run();
   Simulator::Destroy();
