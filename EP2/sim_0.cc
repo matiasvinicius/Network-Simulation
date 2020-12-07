@@ -37,6 +37,7 @@ int main(int argc, char *argv[]){
   (2) r0h0 é o enlace entre o roteador 0 e o host 0
   */
 
+  //------------Configuração dos enlaces--------------------
   //Enlaces entre hosts
   //Rede 1 -> AS1
   NodeContainer h0h1 = NodeContainer(hosts.Get(0), hosts.Get(1));
@@ -118,7 +119,7 @@ int main(int argc, char *argv[]){
   NodeContainer r7h18 = NodeContainer(routers.Get(7), hosts.Get(18));
   NodeContainer r8h21 = NodeContainer(routers.Get(8), hosts.Get(21));
   
-  //---------------Configuração da rede------------- 
+  //---------------Configuração dos canais------------- 
   //Vão existir 5 configurações de canais para os Enlaces
   PointToPointHelper channelLevel1;
   pointToPoint.SetDeviceAttribute("DataRate", StringValue("128kbps"));
@@ -139,6 +140,96 @@ int main(int argc, char *argv[]){
   PointToPointHelper channelLevel5;
   pointToPoint.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
   pointToPoint.SetChannelAttribute("Delay", StringValue("0ms"));
+
+  //--------Atribuição dos canais aos enlaces----------
+  //Rede 1 -> AS1
+  NetDeviceContainer h0h1_link = channelLevel1.Install(h0h1);
+  NetDeviceContainer h0h2_link = channelLevel1.Install(h0h2);
+  NetDeviceContainer h0h3_link = channelLevel1.Install(h0h3);
+  NetDeviceContainer h1h2_link = channelLevel1.Install(h1h2);
+  NetDeviceContainer h1h4_link = channelLevel1.Install(h1h4);
+  NetDeviceContainer h2h3_link = channelLevel1.Install(h2h3);
+  NetDeviceContainer h2h4_link = channelLevel1.Install(h2h4);
+  NetDeviceContainer h3h0_link = channelLevel1.Install(h3h0);
+  
+  //Rede 2 -> AS1
+  NetDeviceContainer h5h6_link = channelLevel1.Install(h5h6);
+  NetDeviceContainer h6h7_link = channelLevel1.Install(h6h7);
+
+  //Rede 3 -> AS1
+  NetDeviceContainer h8h9_link = channelLevel1.Install(h8h9);
+
+  //Rede 4 -> AS2
+  NetDeviceContainer h10h11_link = channelLevel1.Install(h10h11);
+  NetDeviceContainer h10h12_link = channelLevel1.Install(h10h12);
+  NetDeviceContainer h10h13_link = channelLevel1.Install(h10h13);
+  NetDeviceContainer h12h13_link = channelLevel1.Install(h12h13);
+
+  //Rede 5 -> AS2
+  NetDeviceContainer h14h15_link = channelLevel1.Install(h14h15);
+
+  //Rede 6 -> AS3
+  NetDeviceContainer h16h17_link = channelLevel1.Install(h16h17);
+
+  //Rede 7 -> AS3
+  NetDeviceContainer h18h19_link = channelLevel1.Install(h18h19);
+  NetDeviceContainer h18h20_link = channelLevel1.Install(h18h20);
+  NetDeviceContainer h19h20_link = channelLevel1.Install(h19h20);
+  
+  //Rede 8 -> AS3
+  NetDeviceContainer h21h22_link = channelLevel1.Install(h21h22);
+  NetDeviceContainer h21h23_link = channelLevel1.Install(h21h23);
+  NetDeviceContainer h22h23_link = channelLevel1.Install(h22h23);
+  NetDeviceContainer h21h24_link = channelLevel1.Install(h21h24);
+  NetDeviceContainer h24h25_link = channelLevel1.Install(h24h25);
+  
+  //Elaces entre os roteadores (intra-AS)
+  //AS1  NetDeviceContainer r0r1_link = channelLevel1.Install(r0r1);
+  NetDeviceContainer r0r2_link = channelLevel1.Install(r0r2);
+  NetDeviceContainer r0r3_link = channelLevel1.Install(r0r3);
+  NetDeviceContainer r1r2_link = channelLevel1.Install(r1r2);
+  NetDeviceContainer r1r3_link = channelLevel1.Install(r1r3);
+  NetDeviceContainer r2r3_link = channelLevel1.Install(r2r3);
+
+  //AS2
+  NetDeviceContainer r4r5_link = channelLevel1.Install(r4r5);
+  
+  //AS3
+  NetDeviceContainer r6r7_link = channelLevel1.Install(r6r7);
+  NetDeviceContainer r6r8_link = channelLevel1.Install(r6r8);
+  NetDeviceContainer r7r8_link = channelLevel1.Install(r7r8);
+
+  //Enlaces entre os roteadores(inter-AS)
+  //AS1 - AS2
+  NetDeviceContainer r3r4_link = channelLevel1.Install(r3r4);
+  
+  //AS2 - AS3
+  NetDeviceContainer r5r6_link = channelLevel1.Install(r5r6);
+  
+  //Enlaces entre Roteador e Host
+  //AS1
+  NetDeviceContainer r0h0_link = channelLevel1.Install(r0h0);
+  NetDeviceContainer r1h5_link = channelLevel1.Install(r1h5);
+  NetDeviceContainer r2h8_link = channelLevel1.Install(r2h8);
+ 
+  //AS2
+  NetDeviceContainer r4h100_link = channelLevel1.Install(r4h10);
+  NetDeviceContainer r5h14_link = channelLevel1.Install(r5h14);
+
+  //AS3
+  NetDeviceContainer r6h16_link = channelLevel1.Install(r6h16);
+  NetDeviceContainer r7h18_link = channelLevel1.Install(r7h18);
+  NetDeviceContainer r8h21_link = channelLevel1.Install(r8h21); 
+
+  //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
+  InternetStackHelper stack;
+  for(int i = 0; i < totalHosts; i++){
+    stack.Install(hosts.Get(i));
+  }
+  for(int i = 0; i < totalRouters; i++){
+    stack.Install(routers.Get(i));
+  }
+
 
 
 
