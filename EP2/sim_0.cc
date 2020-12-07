@@ -221,6 +221,7 @@ int main(int argc, char *argv[]){
   NetDeviceContainer r7h18_link = channelLevel1.Install(r7h18);
   NetDeviceContainer r8h21_link = channelLevel1.Install(r8h21); 
 
+  //---------Pilha de Internet----------
   //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
   InternetStackHelper stack;
   for(int i = 0; i < totalHosts; i++){
@@ -229,6 +230,8 @@ int main(int argc, char *argv[]){
   for(int i = 0; i < totalRouters; i++){
     stack.Install(routers.Get(i));
   }
+
+  //-------------Atribuição dos endereços IP----------------
 
 
 
