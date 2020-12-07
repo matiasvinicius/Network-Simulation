@@ -117,9 +117,29 @@ int main(int argc, char *argv[]){
   NodeContainer r6h16 = NodeContainer(routers.Get(6), hosts.Get(16));
   NodeContainer r7h18 = NodeContainer(routers.Get(7), hosts.Get(18));
   NodeContainer r8h21 = NodeContainer(routers.Get(8), hosts.Get(21));
+  
+  //---------------Configuração da rede------------- 
+  //Vão existir 5 configurações de canais para os Enlaces
+  PointToPointHelper channelLevel1;
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("128kbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("10ms"));
+  
+  PointToPointHelper channelLevel2;
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("3ms"));
 
-  //Configuração da rede 
-  //Configuração da taxa de transmissão e delay de cada enlace
+  PointToPointHelper channelLevel3;
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("1ms"));
+
+  PointToPointHelper channelLevel4;
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("1ms"));
+
+  PointToPointHelper channelLevel5;
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("0ms"));
+
 
 
   Simulator::Run();
