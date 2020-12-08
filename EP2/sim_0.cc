@@ -184,7 +184,8 @@ int main(int argc, char *argv[]){
   NetDeviceContainer h24h25_link = channelLevel1.Install(h24h25);
   
   //Elaces entre os roteadores (intra-AS)
-  //AS1  NetDeviceContainer r0r1_link = channelLevel1.Install(r0r1);
+  //AS1  
+  NetDeviceContainer r0r1_link = channelLevel1.Install(r0r1);
   NetDeviceContainer r0r2_link = channelLevel1.Install(r0r2);
   NetDeviceContainer r0r3_link = channelLevel1.Install(r0r3);
   NetDeviceContainer r1r2_link = channelLevel1.Install(r1r2);
@@ -213,7 +214,7 @@ int main(int argc, char *argv[]){
   NetDeviceContainer r2h8_link = channelLevel1.Install(r2h8);
  
   //AS2
-  NetDeviceContainer r4h100_link = channelLevel1.Install(r4h10);
+  NetDeviceContainer r4h10_link = channelLevel1.Install(r4h10);
   NetDeviceContainer r5h14_link = channelLevel1.Install(r5h14);
 
   //AS3
@@ -318,9 +319,81 @@ int main(int argc, char *argv[]){
   address.SetBase("192.170.3.10", "255.255.255.0");
   address.Assign (h24h25_link);  
 
+  //Elaces entre os roteadores (intra-AS)
+  //AS1
+  address.SetBase("192.168.2.0", "255.255.255.0");
+  address.Assign (r0r1_link);
+
+  address.SetBase("192.168.3.0", "255.255.255.0");
+  address.Assign (r0r2_link);  
+
+  address.SetBase("192.168.5.0", "255.255.255.0");
+  address.Assign (r0r3_link);  
+
+  address.SetBase("192.168.4.0", "255.255.255.0");
+  address.Assign (r1r2_link); 
+
+  address.SetBase("192.168.0.0", "255.255.255.0");
+  address.Assign (r2r3_link);  
+
+  address.SetBase("192.168.1.0", "255.255.255.0");
+  address.Assign (r1r3_link);  
+
+  //AS2
+  address.SetBase("192.169.0.0", "255.255.255.0");
+  address.Assign (r4r5_link);  
+
+  //AS3
+  address.SetBase("192.170.0.0", "255.255.255.0");
+  address.Assign (r6r7_link);  
+
+  address.SetBase("192.170.1.0", "255.255.255.0");
+  address.Assign (r7r8_link); 
+
+  address.SetBase("192.170.2.0", "255.255.255.0");
+  address.Assign (r6r8_link);   
+
+  //Enlaces entre os roteadores(inter-AS)
+  //AS1 - AS2
+  address.SetBase("192.1.0.0", "255.255.255.0");
+  address.Assign (r3r4_link);   
+
+  //AS2 - AS3
+  address.SetBase("192.2.0.0", "255.255.255.0");
+  address.Assign (r5r6_link);   
+
+  //Enlaces entre Roteador e Host
+  //AS1
+  address.SetBase("192.168.7.0", "255.255.255.0");
+  address.Assign (r0h0_link);   
+
+  address.SetBase("192.168.8.0", "255.255.255.0");
+  address.Assign (r1h5_link);   
+
+  address.SetBase("192.168.6.0", "255.255.255.0");
+  address.Assign (r2h8_link);   
+
+  //AS2
+  address.SetBase("192.169.1.0", "255.255.255.0");
+  address.Assign (r4h10_link);   
+
+  address.SetBase("192.169.2.0", "255.255.255.0");
+  address.Assign (r5h14_link); 
+
+  //AS3  
+  address.SetBase("192.170.5.0", "255.255.255.0");
+  address.Assign (r6h16_link); 
+  
+  address.SetBase("192.170.3.0", "255.255.255.0");
+  address.Assign (r8h21_link); 
+
+  address.SetBase("192.170.4.0", "255.255.255.0");
+  address.Assign (r7h18_link); 
+
+
+  
+
   //Simulação
-
-
   Simulator::Run();
   Simulator::Destroy();
   return 0;
