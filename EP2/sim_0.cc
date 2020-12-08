@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
   NodeContainer h1h4 = NodeContainer(hosts.Get(1), hosts.Get(4));
   NodeContainer h2h3 = NodeContainer(hosts.Get(2), hosts.Get(3));
   NodeContainer h2h4 = NodeContainer(hosts.Get(2), hosts.Get(4));
-  NodeContainer h3h0 = NodeContainer(hosts.Get(3), hosts.Get(0));
+  NodeContainer h3h4 = NodeContainer(hosts.Get(3), hosts.Get(0));
 
   //Rede 2 -> AS1
   NodeContainer h5h6 = NodeContainer(hosts.Get(5), hosts.Get(6));
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]){
   NetDeviceContainer h1h4_link = channelLevel1.Install(h1h4);
   NetDeviceContainer h2h3_link = channelLevel1.Install(h2h3);
   NetDeviceContainer h2h4_link = channelLevel1.Install(h2h4);
-  NetDeviceContainer h3h0_link = channelLevel1.Install(h3h0);
+  NetDeviceContainer h3h4_link = channelLevel1.Install(h3h4);
   
   //Rede 2 -> AS1
   NetDeviceContainer h5h6_link = channelLevel1.Install(h5h6);
@@ -232,11 +232,96 @@ int main(int argc, char *argv[]){
   }
 
   //-------------Atribuição dos endereços IP----------------
+  Ipv4AddressHelper address;
 
+  //IPs dos enlaces entre hosts
+  //Rede 1 -> AS1
+  address.SetBase("192.168.7.2", "255.255.255.0");
+  address.Assign (h0h3_link);
 
+  address.SetBase("192.168.7.4", "255.255.255.0");
+  address.Assign (h3h4_link);
+
+  address.SetBase("192.168.7.6", "255.255.255.0");
+  address.Assign (h1h4_link);
+
+  address.SetBase("192.168.7.8", "255.255.255.0");
+  address.Assign (h0h1_link);
+
+  address.SetBase("192.168.7.10", "255.255.255.0");
+  address.Assign (h0h2_link);
+
+  address.SetBase("192.168.7.12", "255.255.255.0");
+  address.Assign (h2h3_link);
+
+  address.SetBase("192.168.7.14", "255.255.255.0");
+  address.Assign (h2h4_link);
+
+  address.SetBase("192.168.7.16", "255.255.255.0");
+  address.Assign (h1h2_link);
+
+  //Rede 2 -> AS1
+  address.SetBase("192.168.8.2", "255.255.255.0");
+  address.Assign (h5h6_link); 
+
+  address.SetBase("192.168.8.4", "255.255.255.0");
+  address.Assign (h5h6_link); 
+
+  //Rede 3 -> AS1
+  address.SetBase("192.168.6.2", "255.255.255.0");
+  address.Assign (h8h9_link); 
+
+  //Rede 4 -> AS2
+  address.SetBase("192.169.1.2", "255.255.255.0");
+  address.Assign (h10h11_link);  
+
+  address.SetBase("192.169.1.4", "255.255.255.0");
+  address.Assign (h10h12_link); 
+
+  address.SetBase("192.169.1.6", "255.255.255.0");
+  address.Assign (h10h13_link); 
+
+  address.SetBase("192.169.1.8", "255.255.255.0");
+  address.Assign (h12h13_link); 
+
+  //Rede 5 -> AS2
+  address.SetBase("192.169.2.2", "255.255.255.0");
+  address.Assign (h14h15_link); 
+
+  //Rede 6 -> AS3
+  address.SetBase("192.170.5.2", "255.255.255.0");
+  address.Assign (h16h17_link); 
+
+  //Rede 7 -> AS3
+  address.SetBase("192.170.4.2", "255.255.255.0");
+  address.Assign (h18h19_link); 
+
+  address.SetBase("192.170.4.4", "255.255.255.0");
+  address.Assign (h19h20_link); 
+
+  address.SetBase("192.170.4.6", "255.255.255.0");
+  address.Assign (h18h20_link); 
+
+  //Rede 8 -> AS3
+  address.SetBase("192.170.3.2", "255.255.255.0");
+  address.Assign (h21h23_link); 
+
+  address.SetBase("192.170.3.4", "255.255.255.0");
+  address.Assign (h22h23_link);  
+
+  address.SetBase("192.170.3.6", "255.255.255.0");
+  address.Assign (h21h22_link);  
+
+  address.SetBase("192.170.3.8", "255.255.255.0");
+  address.Assign (h21h24_link);  
+
+  address.SetBase("192.170.3.10", "255.255.255.0");
+  address.Assign (h24h25_link);  
+
+  //Simulação
 
 
   Simulator::Run();
   Simulator::Destroy();
   return 0;
- }
+}
