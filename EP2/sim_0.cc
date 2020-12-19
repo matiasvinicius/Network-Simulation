@@ -393,7 +393,7 @@ int main(int argc, char *argv[]){
 
   
 
-  //Simulação
+  //Simulação + animação
   Simulator::Run();
   Simulator::Destroy();
   return 0;
