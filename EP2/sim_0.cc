@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
   NodeContainer h1h4 = NodeContainer(hosts.Get(1), hosts.Get(4));
   NodeContainer h2h3 = NodeContainer(hosts.Get(2), hosts.Get(3));
   NodeContainer h2h4 = NodeContainer(hosts.Get(2), hosts.Get(4));
-  NodeContainer h3h4 = NodeContainer(hosts.Get(3), hosts.Get(0));
+  NodeContainer h3h4 = NodeContainer(hosts.Get(3), hosts.Get(4));
 
   //Rede 2 -> AS1
   NodeContainer h5h6 = NodeContainer(hosts.Get(5), hosts.Get(6));
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
   NodeContainer h14h15 = NodeContainer(hosts.Get(14), hosts.Get(15));
   
   //Rede 6 -> AS3
-  NodeContainer h16h17 = NodeContainer(hosts.Get(17), hosts.Get(17));
+  NodeContainer h16h17 = NodeContainer(hosts.Get(16), hosts.Get(17));
   
   //Rede 7 -> AS3
   NodeContainer h18h19 = NodeContainer(hosts.Get(18), hosts.Get(19));
@@ -122,24 +122,24 @@ int main(int argc, char *argv[]){
   //---------------Configuração dos canais------------- 
   //Vão existir 5 configurações de canais para os Enlaces
   PointToPointHelper channelLevel1;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("128kbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("10ms"));
+  channelLevel1.SetDeviceAttribute("DataRate", StringValue("128kbps"));
+  channelLevel1.SetChannelAttribute("Delay", StringValue("10ms"));
   
   PointToPointHelper channelLevel2;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("3ms"));
+  channelLevel2.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
+  channelLevel2.SetChannelAttribute("Delay", StringValue("3ms"));
 
   PointToPointHelper channelLevel3;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("1ms"));
+  channelLevel3.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
+  channelLevel3.SetChannelAttribute("Delay", StringValue("1ms"));
 
   PointToPointHelper channelLevel4;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("1ms"));
+  channelLevel4.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
+  channelLevel4.SetChannelAttribute("Delay", StringValue("1ms"));
 
   PointToPointHelper channelLevel5;
-  pointToPoint.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
-  pointToPoint.SetChannelAttribute("Delay", StringValue("0ms"));
+  channelLevel5.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
+  channelLevel5.SetChannelAttribute("Delay", StringValue("0ms"));
 
   //--------Atribuição dos canais aos enlaces----------
   //Rede 1 -> AS1
@@ -237,161 +237,177 @@ int main(int argc, char *argv[]){
 
   //IPs dos enlaces entre hosts
   //Rede 1 -> AS1
-  address.SetBase("192.168.7.2", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0","0.0.0.2");
   address.Assign (h0h3_link);
 
-  address.SetBase("192.168.7.4", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0","0.0.0.4");
   address.Assign (h3h4_link);
 
-  address.SetBase("192.168.7.6", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0","0.0.0.6");
   address.Assign (h1h4_link);
 
-  address.SetBase("192.168.7.8", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0","0.0.0.8");
   address.Assign (h0h1_link);
 
-  address.SetBase("192.168.7.10", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0","0.0.0.10");
   address.Assign (h0h2_link);
 
-  address.SetBase("192.168.7.12", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0", "0.0.0.12");
   address.Assign (h2h3_link);
 
-  address.SetBase("192.168.7.14", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0", "0.0.0.14");
   address.Assign (h2h4_link);
 
-  address.SetBase("192.168.7.16", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0", "0.0.0.16");
   address.Assign (h1h2_link);
 
   //Rede 2 -> AS1
-  address.SetBase("192.168.8.2", "255.255.255.0");
+  address.SetBase("192.168.8.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h5h6_link); 
 
-  address.SetBase("192.168.8.4", "255.255.255.0");
-  address.Assign (h5h6_link); 
+  address.SetBase("192.168.8.0", "255.255.255.0", "0.0.0.4");
+  address.Assign (h6h7_link);
 
   //Rede 3 -> AS1
-  address.SetBase("192.168.6.2", "255.255.255.0");
+  address.SetBase("192.168.6.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h8h9_link); 
 
   //Rede 4 -> AS2
-  address.SetBase("192.169.1.2", "255.255.255.0");
+  address.SetBase("192.169.1.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h10h11_link);  
 
-  address.SetBase("192.169.1.4", "255.255.255.0");
+  address.SetBase("192.169.1.0", "255.255.255.0", "0.0.0.4");
   address.Assign (h10h12_link); 
 
-  address.SetBase("192.169.1.6", "255.255.255.0");
+  address.SetBase("192.169.1.0", "255.255.255.0", "0.0.0.6");
   address.Assign (h10h13_link); 
 
-  address.SetBase("192.169.1.8", "255.255.255.0");
+  address.SetBase("192.169.1.0", "255.255.255.0", "0.0.0.8");
   address.Assign (h12h13_link); 
 
   //Rede 5 -> AS2
-  address.SetBase("192.169.2.2", "255.255.255.0");
+  address.SetBase("192.169.2.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h14h15_link); 
 
   //Rede 6 -> AS3
-  address.SetBase("192.170.5.2", "255.255.255.0");
-  address.Assign (h16h17_link); 
+  address.SetBase("192.170.5.0", "255.255.255.0","0.0.0.2");
+  address.Assign (h16h17_link);
 
   //Rede 7 -> AS3
-  address.SetBase("192.170.4.2", "255.255.255.0");
+  address.SetBase("192.170.4.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h18h19_link); 
 
-  address.SetBase("192.170.4.4", "255.255.255.0");
+  address.SetBase("192.170.4.0", "255.255.255.0", "0.0.0.4");
   address.Assign (h19h20_link); 
 
-  address.SetBase("192.170.4.6", "255.255.255.0");
+  address.SetBase("192.170.4.0", "255.255.255.0", "0.0.0.6");
   address.Assign (h18h20_link); 
 
   //Rede 8 -> AS3
-  address.SetBase("192.170.3.2", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.2");
   address.Assign (h21h23_link); 
 
-  address.SetBase("192.170.3.4", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.4");
   address.Assign (h22h23_link);  
 
-  address.SetBase("192.170.3.6", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.6");
   address.Assign (h21h22_link);  
 
-  address.SetBase("192.170.3.8", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.8");
   address.Assign (h21h24_link);  
 
-  address.SetBase("192.170.3.10", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
   address.Assign (h24h25_link);  
 
   //Elaces entre os roteadores (intra-AS)
   //AS1
-  address.SetBase("192.168.2.0", "255.255.255.0");
+  address.SetBase("192.168.2.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r0r1_link);
 
-  address.SetBase("192.168.3.0", "255.255.255.0");
+  address.SetBase("192.168.3.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r0r2_link);  
 
-  address.SetBase("192.168.5.0", "255.255.255.0");
+  address.SetBase("192.168.5.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r0r3_link);  
 
-  address.SetBase("192.168.4.0", "255.255.255.0");
+  address.SetBase("192.168.4.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r1r2_link); 
 
-  address.SetBase("192.168.0.0", "255.255.255.0");
+  address.SetBase("192.168.0.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r2r3_link);  
 
-  address.SetBase("192.168.1.0", "255.255.255.0");
+  address.SetBase("192.168.1.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r1r3_link);  
 
   //AS2
-  address.SetBase("192.169.0.0", "255.255.255.0");
+  address.SetBase("192.169.0.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r4r5_link);  
 
   //AS3
-  address.SetBase("192.170.0.0", "255.255.255.0");
+  address.SetBase("192.170.0.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r6r7_link);  
 
-  address.SetBase("192.170.1.0", "255.255.255.0");
+  address.SetBase("192.170.1.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r7r8_link); 
 
-  address.SetBase("192.170.2.0", "255.255.255.0");
+  address.SetBase("192.170.2.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r6r8_link);   
 
   //Enlaces entre os roteadores(inter-AS)
   //AS1 - AS2
-  address.SetBase("192.1.0.0", "255.255.255.0");
+  address.SetBase("192.1.0.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r3r4_link);   
 
   //AS2 - AS3
-  address.SetBase("192.2.0.0", "255.255.255.0");
+  address.SetBase("192.2.0.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r5r6_link);   
 
   //Enlaces entre Roteador e Host
   //AS1
-  address.SetBase("192.168.7.0", "255.255.255.0");
+  address.SetBase("192.168.7.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r0h0_link);   
 
-  address.SetBase("192.168.8.0", "255.255.255.0");
+  address.SetBase("192.168.8.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r1h5_link);   
 
-  address.SetBase("192.168.6.0", "255.255.255.0");
+  address.SetBase("192.168.6.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r2h8_link);   
 
   //AS2
-  address.SetBase("192.169.1.0", "255.255.255.0");
+  address.SetBase("192.169.1.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r4h10_link);   
 
-  address.SetBase("192.169.2.0", "255.255.255.0");
+  address.SetBase("192.169.2.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r5h14_link); 
 
   //AS3  
-  address.SetBase("192.170.5.0", "255.255.255.0");
+  address.SetBase("192.170.5.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r6h16_link); 
   
-  address.SetBase("192.170.3.0", "255.255.255.0");
+  address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r8h21_link); 
 
-  address.SetBase("192.170.4.0", "255.255.255.0");
-  address.Assign (r7h18_link); 
-
-
+  address.SetBase("192.170.4.0", "255.255.255.0", "0.0.0.0");
+  address.Assign (r7h18_link);
   
+  //Estabelece as aplicações cliente / Servidor
+  UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
+
+  ApplicationContainer server = echoServer.Install(hosts.Get(1)); //último nó da rede é o destinatário (servidor)
+  server.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
+  server.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
+
+
+
+
+
+
+  //Gera xml para usar no NetAnim
+  AnimationInterface anim ("sim1_ep2.xml");
+
+  //define posições do(s) node(s) P2P no NetAnim
+  anim.SetConstantPosition (h0h3.Get(0), 10.0, 10.0);
+
 
   //Simulação + animação
   Simulator::Run();
