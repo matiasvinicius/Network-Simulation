@@ -12,9 +12,9 @@ NS_LOG_COMPONENT_DEFINE ("simulacao");//permite a adoção de logs durante o có
 
 int main(int argc, char *argv[]){
   std::string SplitHorizon ("PoisonReverse");
-  CommandLine cmd (__FILE__);
-  LogComponentEnable ("Rip", LOG_LEVEL_ALL);
-  cmd.Parse (argc, argv);
+  //CommandLine cmd (__FILE__);
+  //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
+  //cmd.Parse (argc, argv);
   Config::SetDefault ("ns3::Rip::SplitHorizon", EnumValue (RipNg::POISON_REVERSE));
   
   /*
@@ -226,26 +226,35 @@ int main(int argc, char *argv[]){
   NetDeviceContainer r6h16_link = channelLevel2.Install(r6h16);
   NetDeviceContainer r7h18_link = channelLevel2.Install(r7h18);
   NetDeviceContainer r8h21_link = channelLevel2.Install(r8h21); 
-
-
-  ripRouting.ExcludeInterface (hosts.Get(4), 1);
-  ripRouting.ExcludeInterface (hosts.Get(25), 3);
-
-  for(int i=0; i < totalRouters; i++){
-    ripRouting.SetInterfaceMetric (d, 1, 10);
-  }
   
+  RipHelper ripRouting;
+  /*for (int i=0; i<totalHosts; i++){
+    ripRouting.ExcludeInterface (hosts.Get(i), 1);
+  }*/
+
+  /*for(int i=0; i < totalRouters; i++){
+    ripRouting.SetInterfaceMetric (routers.Get(i), 1, 10);
+  }*/
+
+  Ipv4ListRoutingHelper listRH;
+  listRH.Add (ripRouting, 0);
+
+  InternetStackHelper internetRouters;
+  internetRouters.SetIpv6StackInstall (false);
+  internetRouters.SetRoutingHelper (listRH);
+  for(int i = 0; i < totalRouters; i++){
+    internetRouters.Install(routers.Get(i));
+  }
 
 
   //---------Pilha de Internet----------
   //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
-  InternetStackHelper stack;
+  InternetStackHelper internetHosts;
+  internetHosts.SetIpv6StackInstall (false);
   for(int i = 0; i < totalHosts; i++){
-    stack.Install(hosts.Get(i));
+    internetHosts.Install(hosts.Get(i));
   }
-  for(int i = 0; i < totalRouters; i++){
-    stack.Install(routers.Get(i));
-  }
+
 
   //-------------Atribuição dos endereços IP----------------
   Ipv4AddressHelper address;
@@ -405,14 +414,31 @@ int main(int argc, char *argv[]){
   address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
   Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
   
+  Ptr<Ipv4StaticRouting> staticRouting;
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(4)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
+/*
+  RipHelper routingHelper;
+  Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(1), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(2), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(3), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(4), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(6), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(7), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(8), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(9), routingStream);
 
-  
+  */
   //Estabelece as aplicações cliente / Servidor
   UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
 
   ApplicationContainer server = echoServer.Install(hosts.Get(25)); //nó x é o destinatário (servidor)
   server.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
-  server.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
+  server.Stop(Seconds(30.0)); // Desligamos o servidor depois de 10s
 
   //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes
   UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
@@ -423,7 +449,7 @@ int main(int argc, char *argv[]){
   //Instala a aplicação (cliente) no nó 
   ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
   clientApps.Start(Seconds(1.0));
-  clientApps.Stop(Seconds(10.0));
+  clientApps.Stop(Seconds(20.0));
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
@@ -474,13 +500,6 @@ int main(int argc, char *argv[]){
   anim.SetConstantPosition (r5r6.Get(1), 25.0, 20.0);
   anim.SetConstantPosition (r6r7.Get(1), 15.0, 20.0);
   anim.SetConstantPosition (r6r8.Get(1), 20.0, 15.0);
-
-
-
-
-
-
-
 
 
   //Simulação + animação
