@@ -434,7 +434,7 @@ int main(int argc, char *argv[]){
 
   //--------Animação do NetAnim--------
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim1_ep2.xml");
+  AnimationInterface anim ("sim1_olsr.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
