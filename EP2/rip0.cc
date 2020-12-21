@@ -10,13 +10,20 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("simulacao");//permite a adoção de logs durante o código
 
+void TearDownLink (Ptr<Node> nodeA, Ptr<Node> nodeB, uint32_t interfaceA, uint32_t interfaceB)
+{
+  nodeA->GetObject<Ipv4> ()->SetDown (interfaceA);
+  nodeB->GetObject<Ipv4> ()->SetDown (interfaceB);
+}
+
 int main(int argc, char *argv[]){
   std::string SplitHorizon ("PoisonReverse");
   CommandLine cmd;
   //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
+  //cmd.AddValue ("verbose", "turn on log components", true);
   //cmd.Parse (argc, argv);
   Config::SetDefault ("ns3::Rip::SplitHorizon", EnumValue (RipNg::POISON_REVERSE));
-
+  //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
   /*
   Criação dos 35 nós, armazenados em uma estrutura de dados "NodeContainer"
   Dos 35, 26 são hosts e 9 são roteadores
@@ -30,7 +37,6 @@ int main(int argc, char *argv[]){
   NodeContainer routers;
   hosts.Create(totalHosts); 
   routers.Create(totalRouters);
-
   /*
   Criação dos 44 enlaces para os 35 nós
   Aqui separamos os disposivos criados em conjunto e definimos com que máquina cada um se comunicará
@@ -236,6 +242,11 @@ int main(int argc, char *argv[]){
     ripRouting.SetInterfaceMetric (routers.Get(i), 1, 10);
   }*/
 
+  //ripRouting.ExcludeInterface (routers.Get(0), 2);
+  //ripRouting.SetInterfaceMetric (routers.Get(0), 2, 10);
+  //ripRouting.SetInterfaceMetric (routers.Get(0), 3, 2);
+
+
   Ipv4ListRoutingHelper listRH;
   listRH.Add (ripRouting, 0);
 
@@ -415,21 +426,23 @@ int main(int argc, char *argv[]){
   Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
   
   Ptr<Ipv4StaticRouting> staticRouting;
-  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
-  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(4)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(7)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
 
   RipHelper routingHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
-  for (int i=0; i<totalRouters; i++){
-    routingHelper.PrintRoutingTableAt (Seconds (9.0), routers.Get(i), routingStream);
-  }
-  for (int i=0; i<totalRouters; i++){
-    routingHelper.PrintRoutingTableAt (Seconds (18.0), routers.Get(i), routingStream);
-  }
 
-
+  routingHelper.PrintRoutingTableAt (Seconds (0), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (12), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (13), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (40), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (0), routers.Get(7), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (12), routers.Get(7), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (13), routers.Get(7), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (40), routers.Get(7), routingStream);
+  /*
   //Estabelece as aplicações cliente / Servidor
   UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
 
@@ -447,12 +460,10 @@ int main(int argc, char *argv[]){
   ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(20.0));
-
-/*
-  AsciiTraceHelper ascii;
-  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("ripng-simple-routing.tr"));
-  channelLevel2.EnablePcapAll ("ripng-simple-routing", true);
 */
+
+  AsciiTraceHelper ascii;
+  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("rota_rip.tr"));
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
@@ -506,7 +517,8 @@ int main(int argc, char *argv[]){
 
 
   //Simulação + animação
-  Simulator::Stop (Seconds (10.0));
+  //Simulator::Schedule (Seconds (50), &TearDownLink, routers.Get(0), routers.Get(1), 1, 1);
+  Simulator::Stop (Seconds (200.0));
   Simulator::Run();
   Simulator::Destroy();
   return 0;
