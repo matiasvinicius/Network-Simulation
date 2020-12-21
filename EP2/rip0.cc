@@ -12,11 +12,11 @@ NS_LOG_COMPONENT_DEFINE ("simulacao");//permite a adoção de logs durante o có
 
 int main(int argc, char *argv[]){
   std::string SplitHorizon ("PoisonReverse");
-  //CommandLine cmd (__FILE__);
+  CommandLine cmd;
   //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
   //cmd.Parse (argc, argv);
   Config::SetDefault ("ns3::Rip::SplitHorizon", EnumValue (RipNg::POISON_REVERSE));
-  
+
   /*
   Criação dos 35 nós, armazenados em uma estrutura de dados "NodeContainer"
   Dos 35, 26 são hosts e 9 são roteadores
@@ -417,22 +417,19 @@ int main(int argc, char *argv[]){
   Ptr<Ipv4StaticRouting> staticRouting;
   staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
-  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(4)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(4)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
-/*
+
   RipHelper routingHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(0), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(1), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(2), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(3), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(4), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(6), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(7), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(8), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (10.0), hosts.Get(9), routingStream);
+  for (int i=0; i<totalRouters; i++){
+    routingHelper.PrintRoutingTableAt (Seconds (9.0), routers.Get(i), routingStream);
+  }
+  for (int i=0; i<totalRouters; i++){
+    routingHelper.PrintRoutingTableAt (Seconds (18.0), routers.Get(i), routingStream);
+  }
 
-  */
+
   //Estabelece as aplicações cliente / Servidor
   UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
 
@@ -446,10 +443,16 @@ int main(int argc, char *argv[]){
   echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
   echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
-  //Instala a aplicação (cliente) no nó 
+  //Instala a aplicação (cliente) no nó X
   ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
   clientApps.Start(Seconds(1.0));
   clientApps.Stop(Seconds(20.0));
+
+/*
+  AsciiTraceHelper ascii;
+  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("ripng-simple-routing.tr"));
+  channelLevel2.EnablePcapAll ("ripng-simple-routing", true);
+*/
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
@@ -503,6 +506,7 @@ int main(int argc, char *argv[]){
 
 
   //Simulação + animação
+  Simulator::Stop (Seconds (10.0));
   Simulator::Run();
   Simulator::Destroy();
   return 0;
