@@ -4,9 +4,7 @@
 #include "ns3/internet-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
-//#include "ns3/ipv4-global-routing-helper.h"
-// o include a cima foi substituido pelo include abaixo
-// pois utilizaremos o protocolo de roteamento aodv
+#include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/aodv-module.h"
 
 using namespace ns3;
@@ -450,11 +448,11 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //Habilita logs e gera .PCAPS
-  //channelLevel1.EnablePcapAll("sim1_ep2_channel1");
-  //channelLevel2.EnablePcapAll("sim1_ep2_channel2");
-  //channelLevel3.EnablePcapAll("sim1_ep2_channel3");
-  //channelLevel4.EnablePcapAll("sim1_ep2_channel4");
-  //channelLevel5.EnablePcapAll("sim1_ep2_channel5");
+  //channelLevel1.EnablePcapAll("sim1_aodv_channel1");
+  //channelLevel2.EnablePcapAll("sim1_aodv_channel2");
+  //channelLevel3.EnablePcapAll("sim1_aodv_channel3");
+  //channelLevel4.EnablePcapAll("sim1_aodv_channel4");
+  //channelLevel5.EnablePcapAll("sim1_aodv_channel5");
 
   //--------Animação do NetAnim--------
   //Gera xml para usar no NetAnim
@@ -500,7 +498,7 @@ int main(int argc, char *argv[]){
 
 
   //Simulação + animação
-  Simulator::Stop (Seconds (20.0));
+  Simulator::Stop (Seconds (50.0));
   Simulator::Run();
   Simulator::Destroy();
   return 0;
