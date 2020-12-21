@@ -6,8 +6,8 @@
 #include "ns3/applications-module.h"
 //#include "ns3/ipv4-global-routing-helper.h"
 // o include a cima foi substituido pelo include abaixo
-// pois utilizaremos o protocolo de roteamento olsr
-#include "ns3/olsr-module.h"
+// pois utilizaremos o protocolo de roteamento aodv
+#include "ns3/aodv-module.h"
 
 using namespace ns3;
 
@@ -226,22 +226,30 @@ int main(int argc, char *argv[]){
   NetDeviceContainer r8h21_link = channelLevel2.Install(r8h21);
 
   //----------Protocolo de Roteamento----------
-  //Define o protocolo OLSR como prioridade na lista de protocolos de roteamento
-  OlsrHelper olsr;
-  Ipv4ListRoutingHelper rout;  
-  rout.Add(olsr,100);
+  //Define o protocolo AODV como prioridade na lista de protocolos de roteamento
+ 
+  AodvHelper aodv;
+  Ipv4ListRoutingHelper rout;
+  rout.Add(aodv,100);
 
+  InternetStackHelper internetRouters;
+  internetRouters.SetIpv6StackInstall (false);
+  internetRouters.SetRoutingHelper (rout);
+
+  //Instala o protocolo de roteamento nos roteadores
+  for(int i = 0; i < totalRouters; i++){
+    internetRouters.Install(routers.Get(i));
+  }
 
   //---------Pilha de Internet----------
   //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
-  InternetStackHelper stack;
-  stack.SetRoutingHelper(rout);
+  InternetStackHelper internetHosts;
+  internetHosts.SetIpv6StackInstall(false);
+
   for(int i = 0; i < totalHosts; i++){
-    stack.Install(hosts.Get(i));
+    internetHosts.Install(hosts.Get(i));
   }
-  for(int i = 0; i < totalRouters; i++){
-    stack.Install(routers.Get(i));
-  }
+
 
   //-------------Atribuição dos endereços IP----------------
   Ipv4AddressHelper address;
@@ -400,6 +408,22 @@ int main(int argc, char *argv[]){
 
   address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
   Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
+
+  Ptr<Ipv4StaticRouting> staticRouting;
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(25)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
+
+/*
+  RipHelper routingHelper;
+  Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
+  for (int i=0; i<totalRouters; i++){
+    routingHelper.PrintRoutingTableAt (Seconds (10.0), routers.Get(i), routingStream);
+  }
+  for (int i=0; i<totalRouters; i++){
+    routingHelper.PrintRoutingTableAt (Seconds (20.0), routers.Get(i), routingStream);
+  }*/
   
   //-------Configuração do cliente e servidor---------
   
@@ -407,23 +431,23 @@ int main(int argc, char *argv[]){
   UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
 
   ApplicationContainer server = echoServer.Install(hosts.Get(25)); //nó X é o destinatário (servidor)
-  server.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
-  server.Stop(Seconds(10.0)); // Desligamos o servidor depois de 10s
+  server.Start (Seconds(0.0)); //Depois de 0 segundos na rede o servidor começa a atuar
+  server.Stop(Seconds(20.0)); // Desligamos o servidor depois de 10s
 
-  //Cria uma aplicação UDP, para o cliente, na qual assinalamos o endereço e porta 
+  //Cria uma aplicação UDP, para o cliente, na qual assinalamos o endereço e porta
   //do servidor que enviaremos os pacotes
   UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
-  echoClient.SetAttribute("MaxPackets", UintegerValue(1));
+  echoClient.SetAttribute("MaxPackets", UintegerValue(10));
   echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
   echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
   //Instala a aplicação (cliente) no nó X
   ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
-  clientApps.Start(Seconds(1.0));
-  clientApps.Stop(Seconds(10.0));
+  clientApps.Start(Seconds(5.0));
+  clientApps.Stop(Seconds(20.0));
 
   //Tabela de Roteamento
-  //Ipv4GlobalRoutingHelper::PopulateRoutingTables();
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //Habilita logs e gera .PCAPS
   //channelLevel1.EnablePcapAll("sim1_ep2_channel1");
@@ -434,7 +458,7 @@ int main(int argc, char *argv[]){
 
   //--------Animação do NetAnim--------
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim1_olsr.xml");
+  AnimationInterface anim ("sim1_aodv.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
@@ -476,6 +500,7 @@ int main(int argc, char *argv[]){
 
 
   //Simulação + animação
+  Simulator::Stop (Seconds (20.0));
   Simulator::Run();
   Simulator::Destroy();
   return 0;
