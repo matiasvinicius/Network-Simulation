@@ -245,8 +245,8 @@ int main(int argc, char *argv[]){
   rout2.Add(rip,0);
 
   InternetStackHelper internetRouters2;
-  internetRouters.SetIpv6StackInstall (false);
-  internetRouters.SetRoutingHelper (rout2);
+  internetRouters2.SetIpv6StackInstall (false);
+  internetRouters2.SetRoutingHelper (rout2);
 
   //Instala o protocolo de roteamento RIP nos roteadores
   for(int i = 5; i <= 8; i++){
@@ -432,7 +432,7 @@ int main(int argc, char *argv[]){
 
   AodvHelper aodvHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
-  for(int time=0.0; time <= 25; time+=5){
+  for(int time=0.0; time <= 10; time+=5){
     //aodvHelper.PrintRoutingTableAt (Seconds (time), routers.Get(0), routingStream);
     aodvHelper.PrintRoutingTableAt (Seconds (time), routers.Get(4), routingStream);
   }
@@ -440,7 +440,7 @@ int main(int argc, char *argv[]){
   RipHelper routingHelper;
   Ptr<OutputStreamWrapper> routingStream2 = Create<OutputStreamWrapper> (&std::cout);
 
-  for(int i=0; i<=25; i+=5){
+  for(int i=0; i<=10; i+=5){
     routingHelper.PrintRoutingTableAt (Seconds (i), routers.Get(5), routingStream2);
     //routingHelper.PrintRoutingTableAt (Seconds (i), routers.Get(8), routingStream2);
   }
