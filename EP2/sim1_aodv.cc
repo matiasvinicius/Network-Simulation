@@ -496,8 +496,8 @@ int main(int argc, char *argv[]){
   anim.SetConstantPosition (r6r8.Get(1), 20.0, 15.0);
 
 
-
-  //Simulação + animação
+  //----------Simulação----------
+  
   Simulator::Stop (Seconds (50.0));
   Simulator::Run();
   Simulator::Destroy();
