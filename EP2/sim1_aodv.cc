@@ -407,22 +407,22 @@ int main(int argc, char *argv[]){
   address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
   Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
 
+
+  //--------Print das tabelas de roteamento--------
+
   Ptr<Ipv4StaticRouting> staticRouting;
   staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
   staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(25)->GetObject<Ipv4> ()->GetRoutingProtocol ());
   //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
 
-/*
-  RipHelper routingHelper;
+  AodvHelper aodvHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
-  for (int i=0; i<totalRouters; i++){
-    routingHelper.PrintRoutingTableAt (Seconds (10.0), routers.Get(i), routingStream);
+  for(int time=0.0; time <= 50; time+=10){
+    aodvHelper.PrintRoutingTableAt (Seconds (time), routers.Get(0), routingStream);
+    aodvHelper.PrintRoutingTableAt (Seconds (time), routers.Get(1), routingStream);
   }
-  for (int i=0; i<totalRouters; i++){
-    routingHelper.PrintRoutingTableAt (Seconds (20.0), routers.Get(i), routingStream);
-  }*/
-  
+
   //-------Configuração do cliente e servidor---------
   
   //Estabelece as aplicações cliente / Servidor
@@ -447,7 +447,7 @@ int main(int argc, char *argv[]){
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-  //Habilita logs e gera .PCAPS
+  //----------Habilita logs e gera .PCAPS-------------
   //channelLevel1.EnablePcapAll("sim1_aodv_channel1");
   //channelLevel2.EnablePcapAll("sim1_aodv_channel2");
   //channelLevel3.EnablePcapAll("sim1_aodv_channel3");
