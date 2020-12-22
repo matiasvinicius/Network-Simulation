@@ -448,15 +448,16 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //----------Habilita logs e gera .PCAPS-------------
-  //channelLevel1.EnablePcapAll("sim1_aodv_channel1");
-  //channelLevel2.EnablePcapAll("sim1_aodv_channel2");
-  //channelLevel3.EnablePcapAll("sim1_aodv_channel3");
-  //channelLevel4.EnablePcapAll("sim1_aodv_channel4");
-  //channelLevel5.EnablePcapAll("sim1_aodv_channel5");
+  //channelLevel1.EnablePcapAll("sim0_aodv_channel1");
+  //channelLevel2.EnablePcapAll("sim0_aodv_channel2");
+  //channelLevel3.EnablePcapAll("sim0_aodv_channel3");
+  //channelLevel4.EnablePcapAll("sim0_aodv_channel4");
+  //channelLevel5.EnablePcapAll("sim0_aodv_channel5");
 
   //--------Animação do NetAnim--------
+
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim1_aodv.xml");
+  AnimationInterface anim ("sim0_aodv.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
