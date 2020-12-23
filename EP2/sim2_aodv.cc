@@ -465,13 +465,13 @@ int main(int argc, char *argv[]){
 
   //----------Habilita logs e gera .PCAPS-------------
 
-  channelLevel2.EnablePcapAll("sim3_aodv_channel2");
+  channelLevel2.EnablePcapAll("sim2_aodv");
 
 
 
   //--------Animação do NetAnim--------
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim3_aodv.xml");
+  AnimationInterface anim ("sim2_aodv.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
