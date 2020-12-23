@@ -5,7 +5,6 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/ipv4-global-routing-helper.h"
-#include "ns3/aodv-module.h"
 
 using namespace ns3;
 
@@ -18,7 +17,12 @@ void TearDownLink (Ptr<Node> nodeA, Ptr<Node> nodeB, uint32_t interfaceA, uint32
 }
 
 int main(int argc, char *argv[]){
-  
+  //std::string SplitHorizon ("PoisonReverse");
+  CommandLine cmd;
+  //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
+  //cmd.AddValue ("verbose", "turn on log components", true);
+  //cmd.Parse (argc, argv);
+  Config::SetDefault ("ns3::Rip::SplitHorizon", EnumValue (RipNg::NO_SPLIT_HORIZON));  //LogComponentEnable ("Rip", LOG_LEVEL_ALL);
   /*
   Criação dos 35 nós, armazenados em uma estrutura de dados "NodeContainer"
   Dos 35, 26 são hosts e 9 são roteadores
@@ -32,7 +36,6 @@ int main(int argc, char *argv[]){
   NodeContainer routers;
   hosts.Create(totalHosts); 
   routers.Create(totalRouters);
-
   /*
   Criação dos 44 enlaces para os 35 nós
   Aqui separamos os disposivos criados em conjunto e definimos com que máquina cada um se comunicará
@@ -153,7 +156,7 @@ int main(int argc, char *argv[]){
   NetDeviceContainer h0h1_link = channelLevel2.Install(h0h1);
   NetDeviceContainer h0h2_link = channelLevel2.Install(h0h2);
   NetDeviceContainer h0h3_link = channelLevel2.Install(h0h3);
-  //NetDeviceContainer h1h2_link = channelLevel2.Install(h1h2); removido devido problemas
+  //NetDeviceContainer h1h2_link = channelLevel2.Install(h1h2);
   NetDeviceContainer h1h4_link = channelLevel2.Install(h1h4);
   NetDeviceContainer h2h3_link = channelLevel2.Install(h2h3);
   NetDeviceContainer h2h4_link = channelLevel2.Install(h2h4);
@@ -227,29 +230,25 @@ int main(int argc, char *argv[]){
   //AS3
   NetDeviceContainer r6h16_link = channelLevel2.Install(r6h16);
   NetDeviceContainer r7h18_link = channelLevel2.Install(r7h18);
-  NetDeviceContainer r8h21_link = channelLevel2.Install(r8h21);
+  NetDeviceContainer r8h21_link = channelLevel2.Install(r8h21); 
+  
+  RipHelper ripRouting;
 
-  //----------Protocolo de Roteamento----------
-  //Define o protocolo AODV como prioridade na lista de protocolos de roteamento
- 
-  RipHelper rip;
-  Ipv4ListRoutingHelper rout;
-  rout.Add(rip,100);
+  Ipv4ListRoutingHelper listRH;
+  listRH.Add (ripRouting, 0);
 
   InternetStackHelper internetRouters;
   internetRouters.SetIpv6StackInstall (false);
-  internetRouters.SetRoutingHelper (rout);
-
-  //Instala o protocolo de roteamento nos roteadores
+  internetRouters.SetRoutingHelper (listRH);
   for(int i = 0; i < totalRouters; i++){
     internetRouters.Install(routers.Get(i));
   }
 
+
   //---------Pilha de Internet----------
   //Instala pilha de Internet (permite o uso de protocolos TCP, UDP e IP)
   InternetStackHelper internetHosts;
-  internetHosts.SetIpv6StackInstall(false);
-
+  internetHosts.SetIpv6StackInstall (false);
   for(int i = 0; i < totalHosts; i++){
     internetHosts.Install(hosts.Get(i));
   }
@@ -412,56 +411,28 @@ int main(int argc, char *argv[]){
 
   address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
   Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
-
-  //--------Print das tabelas de roteamento--------
-
-  Ptr<Ipv4StaticRouting> staticRouting;
-  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
-  //staticRouting->SetDefaultRoute ("192.168.7.0", 1 );
-  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (hosts.Get(25)->GetObject<Ipv4> ()->GetRoutingProtocol ());
-  //staticRouting->SetDefaultRoute ("192.1.0.1", 1 );
-
-
-  Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
-  for(int time=0.0; time <= 50; time+=10){
-    rip.PrintRoutingTableAt (Seconds (time), routers.Get(0), routingStream);
-    //rip.PrintRoutingTableAt (Seconds (time), routers.Get(1), routingStream);
-  }
-
-  //-------Configuração do cliente e servidor---------
   
-  //Estabelece as aplicações cliente / Servidor
-  UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
+  Ptr<Ipv4StaticRouting> staticRouting;
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(0)->GetObject<Ipv4> ()->GetRoutingProtocol ());
+  staticRouting = Ipv4RoutingHelper::GetRouting <Ipv4StaticRouting> (routers.Get(7)->GetObject<Ipv4> ()->GetRoutingProtocol ());
 
-  ApplicationContainer server = echoServer.Install(hosts.Get(25)); //nó X é o destinatário (servidor)
-  server.Start (Seconds(0.0)); //Depois de 0 segundos na rede o servidor começa a atuar
-  server.Stop(Seconds(20.0)); // Desligamos o servidor depois de 10s
+  RipHelper routingHelper;
+  Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
+  /*for(int time=0.0; time <= 50; time+=10){
+    routingHelper.PrintRoutingTableAt (Seconds (time), routers.Get(0), routingStream);
+    //rip.PrintRoutingTableAt (Seconds (time), routers.Get(1), routingStream);
+  }*/
+  routingHelper.PrintRoutingTableAt (Seconds (25), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (25)+MilliSeconds(1), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (25), routers.Get(1), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (25)+MilliSeconds(1), routers.Get(1), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (50), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (50), routers.Get(1), routingStream);
 
-  //Cria uma aplicação UDP, para o cliente, na qual assinalamos o endereço e porta
-  //do servidor que enviaremos os pacotes
-  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
-  echoClient.SetAttribute("MaxPackets", UintegerValue(10));
-  echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
-  echoClient.SetAttribute("PacketSize", UintegerValue(1024));
-
-  //Instala a aplicação (cliente) no nó X
-  ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
-  clientApps.Start(Seconds(5.0));
-  clientApps.Stop(Seconds(20.0));
-
-  //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-  //----------Habilita logs e gera .PCAPS-------------
-  //channelLevel1.EnablePcapAll("sim3_rip_channel1");
-  //channelLevel2.EnablePcapAll("sim3_rip_channel2");
-  //channelLevel3.EnablePcapAll("sim3_rip_channel3");
-  //channelLevel4.EnablePcapAll("sim3_rip_channel4");
-  //channelLevel5.EnablePcapAll("sim3_rip_channel5");
-
-  //--------Animação do NetAnim--------
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim3_rip.xml");
+  AnimationInterface anim ("sim1_rip.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
@@ -501,9 +472,6 @@ int main(int argc, char *argv[]){
   anim.SetConstantPosition (r6r8.Get(1), 20.0, 15.0);
 
 
-  //---------Simulação-----------
-
-  //desabilita a conexão entre os roteadores 0 e 1 depois de 50 segundos de simulação
   Simulator::Schedule (Seconds (25), &TearDownLink, routers.Get(0), routers.Get(1), 1, 1);
   Simulator::Stop (Seconds (50.0));
   Simulator::Run();
