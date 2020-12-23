@@ -437,57 +437,20 @@ int main(int argc, char *argv[]){
   RipHelper routingHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
 
-  routingHelper.PrintRoutingTableAt (Seconds (0), routers.Get(1), routingStream);
   routingHelper.PrintRoutingTableAt (Seconds (0), routers.Get(0), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (12), routers.Get(0), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (13), routers.Get(0), routingStream);
-  routingHelper.PrintRoutingTableAt (Seconds (40), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (5), routers.Get(0), routingStream);
+  routingHelper.PrintRoutingTableAt (Seconds (20), routers.Get(0), routingStream);
   routingHelper.PrintRoutingTableAt (Seconds (100), routers.Get(0), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (0), routers.Get(7), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (12), routers.Get(7), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (13), routers.Get(7), routingStream);
-  //routingHelper.PrintRoutingTableAt (Seconds (40), routers.Get(7), routingStream);
 
-  //-------Configuração do cliente e servidor---------
-
-  //Estabelece as aplicações cliente / Servidor
-  UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
-
-  ApplicationContainer server = echoServer.Install(hosts.Get(25)); //nó x é o destinatário (servidor)
-  server.Start (Seconds(1.0)); //Depois de 1 segundo na rede o servidor começa a atuar
-  server.Stop(Seconds(30.0)); // Desligamos o servidor depois de 10s
-
-  //Cria uma aplicação UDP na qual assinalamos o IP e porta do servidor que enviaremos os pacotes
-  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
-  echoClient.SetAttribute("MaxPackets", UintegerValue(1));
-  echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
-  echoClient.SetAttribute("PacketSize", UintegerValue(1024));
-
-  //Instala a aplicação (cliente) no nó X
-  ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
-  clientApps.Start(Seconds(1.0));
-  clientApps.Stop(Seconds(20.0));
 
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-  //----------Habilita logs e gera .PCAPS-------------
-  //channelLevel1.EnablePcapAll("sim1_rip_channel1");
-  //channelLevel2.EnablePcapAll("sim1_rip_csma_channel2");
-  //channelLevel3.EnablePcapAll("sim1_rip_channel3");
-  //channelLevel4.EnablePcapAll("sim1_rip_channel4");
-  //channelLevel5.EnablePcapAll("sim1_rip_channel5");
-/*
-  AsciiTraceHelper ascii;
-  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("ripng-simple-routing.tr"));
-  channelLevel2.EnablePcapAll ("ripng-simple-routing", true);
-*/
-
   //--------Animação do NetAnim--------
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim1_rip.xml");
+  AnimationInterface anim ("sim4_rip.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
