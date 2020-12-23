@@ -13,12 +13,6 @@ NS_LOG_COMPONENT_DEFINE ("simulacao");//permite a adoção de logs durante o có
 int main(int argc, char *argv[]){
   std::string SplitHorizon ("PoisonReverse");
   Config::SetDefault ("ns3::Rip::SplitHorizon", EnumValue (RipNg::POISON_REVERSE));
-  /*HABILITA A VISÃO DOS LOGS NO TERMINAL (CABEÇALHOS)
-  CommandLine cmd;
-  LogComponentEnable ("Rip", LOG_LEVEL_ALL);
-  md.AddValue ("verbose", "turn on log components", true);
-  cmd.Parse (argc, argv);
-  */
 
   /*
   Criação dos 35 nós, armazenados em uma estrutura de dados "NodeContainer"
@@ -383,7 +377,7 @@ int main(int argc, char *argv[]){
   
   //Rota realizada no arquivo .tr
   AsciiTraceHelper ascii;
-  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("rota_rip.tr"));
+  channelLevel2.EnableAsciiAll (ascii.CreateFileStream ("sim0_rip.tr"));
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
