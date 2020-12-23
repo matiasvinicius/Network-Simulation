@@ -130,17 +130,6 @@ int main(int argc, char *argv[]){
   channelLevel2.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
   channelLevel2.SetChannelAttribute("Delay", StringValue("3ms"));
 
-  PointToPointHelper channelLevel3;
-  channelLevel3.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
-  channelLevel3.SetChannelAttribute("Delay", StringValue("1ms"));
-
-  PointToPointHelper channelLevel4;
-  channelLevel4.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
-  channelLevel4.SetChannelAttribute("Delay", StringValue("1ms"));
-
-  PointToPointHelper channelLevel5;
-  channelLevel5.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
-  channelLevel5.SetChannelAttribute("Delay", StringValue("0ms"));
 
   //--------Atribuição dos canais aos enlaces----------
   //Rede 1 -> AS1
