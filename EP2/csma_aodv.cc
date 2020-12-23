@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
   NodeContainer r8h21 = NodeContainer(routers.Get(8), hosts.Get(21));
   
   //---------------Configuração dos canais------------- 
-  //Vão existir 5 configurações de canais para os Enlaces
+  //Vão existir 2 configurações de canais para os Enlaces
   PointToPointHelper channelLevel1;
   channelLevel1.SetDeviceAttribute("DataRate", StringValue("128kbps"));
   channelLevel1.SetChannelAttribute("Delay", StringValue("10ms"));
@@ -131,17 +131,6 @@ int main(int argc, char *argv[]){
   channelLevel2.SetChannelAttribute("DataRate", StringValue("5Mbps"));
   channelLevel2.SetChannelAttribute("Delay", TimeValue(MilliSeconds(2)));
 
-  PointToPointHelper channelLevel3;
-  channelLevel3.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
-  channelLevel3.SetChannelAttribute("Delay", StringValue("1ms"));
-
-  PointToPointHelper channelLevel4;
-  channelLevel4.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
-  channelLevel4.SetChannelAttribute("Delay", StringValue("1ms"));
-
-  PointToPointHelper channelLevel5;
-  channelLevel5.SetDeviceAttribute("DataRate", StringValue("100Mbps"));
-  channelLevel5.SetChannelAttribute("Delay", StringValue("0ms"));
 
   //--------Atribuição dos canais aos enlaces----------
   //Rede 1 -> AS1
@@ -279,7 +268,7 @@ int main(int argc, char *argv[]){
 
   //AS3
   address.SetBase("192.170.0.0", "255.255.255.0", "0.0.0.0");
-  address.Assign (r6r7_link);  
+  Ipv4InterfaceContainer destinatario = address.Assign (r6r7_link);
 
   address.SetBase("192.170.1.0", "255.255.255.0", "0.0.0.0");
   address.Assign (r7r8_link); 
@@ -406,8 +395,9 @@ int main(int argc, char *argv[]){
   address.Assign (h21h24_link);  
 
   address.SetBase("192.170.3.0", "255.255.255.0", "0.0.0.10");
-  Ipv4InterfaceContainer destinatario = address.Assign (h24h25_link);
+  address.Assign (h24h25_link);
 
+  
   //--------Print das tabelas de roteamento--------
 
   Ptr<Ipv4StaticRouting> staticRouting;
@@ -420,43 +410,45 @@ int main(int argc, char *argv[]){
   AodvHelper aodvHelper;
   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
   aodvHelper.PrintRoutingTableAt (Seconds (0), routers.Get(0), routingStream);
+  aodvHelper.PrintRoutingTableAt (Seconds (1), routers.Get(0), routingStream);
   aodvHelper.PrintRoutingTableAt (Seconds (10), routers.Get(0), routingStream);
+  aodvHelper.PrintRoutingTableAt (Seconds (30), routers.Get(0), routingStream);
   
+
   //-------Configuração do cliente e servidor---------
-
+  
   //Estabelece as aplicações cliente / Servidor
-  UdpEchoServerHelper echoServer(9); //"escuta" a porta 9
+  UdpServerHelper udpServer(9); //"escuta" a porta 9
 
-  ApplicationContainer server = echoServer.Install(hosts.Get(25)); //nó X é o destinatário (servidor)
+  ApplicationContainer server = udpServer.Install(routers.Get(1)); //nó X é o destinatário (servidor)
   server.Start (Seconds(0.0)); //Depois de 0 segundos na rede o servidor começa a atuar
-  server.Stop(Seconds(20.0)); // Desligamos o servidor depois de 10s
+  server.Stop (Seconds(50.0)); //Desligamos o servidor depois de 30s
 
   //Cria uma aplicação UDP, para o cliente, na qual assinalamos o endereço e porta
   //do servidor que enviaremos os pacotes
-  UdpEchoClientHelper echoClient (destinatario.GetAddress(1), 9);
-  echoClient.SetAttribute("MaxPackets", UintegerValue(10));
-  echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
-  echoClient.SetAttribute("PacketSize", UintegerValue(1024));
+  UdpClientHelper udpClient (destinatario.GetAddress(1), 9);
+  udpClient.SetAttribute("MaxPackets", UintegerValue(10));
+  udpClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+  udpClient.SetAttribute("PacketSize", UintegerValue(1024));
 
   //Instala a aplicação (cliente) no nó X
-  ApplicationContainer clientApps = echoClient.Install (hosts.Get(4));
-  clientApps.Start(Seconds(5.0));
-  clientApps.Stop(Seconds(20.0));
+  ApplicationContainer client = udpClient.Install (routers.Get(0));
+  client.Start(Seconds(0.0));
+  client.Stop(Seconds(50.0));
 
   //Tabela de Roteamento
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //---------Habilita logs e gera .PCAPS-----------
-  //channelLevel1.EnablePcapAll("sim1_aodv_channel1");
-  //channelLevel2.EnablePcapAll("sim1_aodv_channel2");
-  //channelLevel3.EnablePcapAll("sim1_aodv_channel3");
-  //channelLevel4.EnablePcapAll("sim1_aodv_channel4");
-  //channelLevel5.EnablePcapAll("sim1_aodv_channel5");
+
+  channelLevel2.EnablePcapAll("csma_aodv");
+
+
 
   //--------Animação do NetAnim--------
 
   //Gera xml para usar no NetAnim
-  AnimationInterface anim ("sim1_aodv_csma.xml");
+  AnimationInterface anim ("csma_aodv.xml");
 
   //define posições do(s) node(s) P2P no NetAnim
   anim.SetConstantPosition (h0h3.Get(0), 25.0, 50.0);
