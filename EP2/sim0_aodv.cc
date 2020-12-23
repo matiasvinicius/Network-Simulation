@@ -437,12 +437,11 @@ int main(int argc, char *argv[]){
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   //----------Habilita logs e gera .PCAPS-------------
-  //channelLevel1.EnablePcapAll("sim0_aodv_channel1");
-  channelLevel2.EnablePcapAll("sim0_aodv_channel2");
-  //channelLevel3.EnablePcapAll("sim0_aodv_channel3");
-  //channelLevel4.EnablePcapAll("sim0_aodv_channel4");
-  //channelLevel5.EnablePcapAll("sim0_aodv_channel5");
 
+  channelLevel2.EnablePcapAll("sim0_aodv_channel2");
+
+
+  
   //--------Animação do NetAnim--------
 
   //Gera xml para usar no NetAnim
